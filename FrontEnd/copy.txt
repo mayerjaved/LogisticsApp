@@ -1,0 +1,40 @@
+# Paths - adjust if needed
+$frontendPath = "C:\Code projects\Tasin\FrontEnd"
+$distPath = Join-Path $frontendPath "dist"
+
+$djangoTemplatesReactPath = "C:\Code projects\Tasin\backend\Tasin\react_accounts\templates\react"
+$djangoStaticReactAssetsPath = "C:\Code projects\Tasin\backend\Tasin\react_accounts\static\react\assets"
+
+# 1. Run npm build
+Write-Host "Running 'npm run build' in $frontendPath ..."
+Push-Location $frontendPath
+npm run build
+if ($LASTEXITCODE -ne 0) {
+    Write-Error "npm build failed! Exiting script."
+    Pop-Location
+    exit 1
+}
+Pop-Location
+
+# 2. Copy index.html and vite.svg
+Write-Host "Copying 'index.html' and 'vite.svg' to Django templates folder..."
+Copy-Item -Path (Join-Path $distPath "index.html") -Destination $djangoTemplatesReactPath -Force
+Copy-Item -Path (Join-Path $distPath "vite.svg") -Destination $djangoTemplatesReactPath -Force
+
+# 3. Copy assets folder recursively
+Write-Host "Copying 'assets' folder to Django static assets folder..."
+
+# Create target assets folder if it doesn't exist
+if (-Not (Test-Path $djangoStaticReactAssetsPath)) {
+    Write-Host "Creating directory $djangoStaticReactAssetsPath"
+    New-Item -ItemType Directory -Path $djangoStaticReactAssetsPath | Out-Null
+}
+
+# Remove existing assets folder contents before copying to avoid stale files
+Write-Host "Removing existing files in assets destination..."
+Remove-Item -Path (Join-Path $djangoStaticReactAssetsPath '*') -Recurse -Force -ErrorAction SilentlyContinue
+
+# Copy new assets folder contents
+Copy-Item -Path (Join-Path $distPath "assets\*") -Destination $djangoStaticReactAssetsPath -Recurse -Force
+
+Write-Host "Build and copy completed successfully!"

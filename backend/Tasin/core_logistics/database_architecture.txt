@@ -1,0 +1,82 @@
+                        ┌─────────────────────┐
+                        │       User          │
+                        │─────────────────────│
+                        │ username (AuthUser) │
+                        │ phone_number        │
+                        │ address             │
+                        └─────────┬───────────┘
+                                  │
+         ┌────────────────────────┴─────────────────────────┐
+         │                                                  │
+ ┌───────────────────┐                              ┌────────────────────────┐
+ │      Driver        │                              │ LogisticsCoordinator  │
+ │───────────────────│                              │────────────────────────│
+ │ license_number     │                              │ department             │
+ │ vehicle_make       │                              └────────────────────────┘
+ │ vehicle_model      │
+ │ vehicle_plate      │
+ └───────────────────┘
+
+┌───────────────────┐
+│     Supplier       │
+│───────────────────│
+│ name               │
+│ contact_person     │
+│ email              │
+│ phone_number       │
+│ address            │
+└─────────┬─────────┘
+          │   supplies
+          ▼
+ ┌───────────────────┐
+ │   DeliveryItem     │<─── belongs to ─────────────┐
+ │───────────────────│                              │
+ │ item_name          │                              │
+ │ barcode            │                              │
+ │ item_type          │                              │
+ │ weight_kg          │                              │
+ │ volume_m3          │                              │
+ │ is_delivered       │                              │
+ │ delivery_timestamp │                              │
+ │ due_time           │                              │
+ └─────────┬─────────┘                              │
+           │ stored in                              │
+           ▼                                         │
+ ┌───────────────────┐                              │
+ │    Warehouse       │                              │
+ │───────────────────│                              │
+ │ name               │                              │
+ │ location           │                              │
+ │ capacity           │                              │
+ └─────────┬─────────┘                              │
+           │ start of                               │
+           ▼                                         │
+  ┌───────────────────┐    has many     ┌───────────────────┐
+  │      Route         │───────────────▶│   DeliveryItem     │
+  │───────────────────│                 │ (as "items")       │
+  │ name               │                 └───────────────────┘
+  │ driver (FK Driver) │
+  │ coordinator (FK)   │
+  │ start_warehouse(FK)│
+  │ scheduled_start/end│
+  │ actual_start/end   │
+  │ status             │
+  │ estimated_cost     │
+  │ notes              │
+  └───────────────────┘
+
+┌───────────────────┐
+│      Client        │
+│───────────────────│
+│ name               │
+│ contact_person     │
+│ email              │
+│ phone_number       │
+│ address            │
+└───────▲───────────┘
+        │ receives
+        │
+┌───────────────────┐
+│   DeliveryItem     │
+│  (linked to Client)│
+└───────────────────┘
